@@ -164,6 +164,8 @@ const loginUserFromDB = async (payload: {
       role: user.role,
       email: user.email,
       phone: user.phone,
+      activeMode : user.activeMode,
+
     },
     config.jwt.jwt_secret as Secret,
     config.jwt.jwt_expire_in as string
@@ -246,6 +248,7 @@ const verifyEmailToDB = async (
         id: user._id,
         email: user.email,
         role: user.role,
+        activeMode : user.activeMode,
       },
       config.jwt.jwt_secret as Secret,
       config.jwt.jwt_expire_in as string
@@ -319,6 +322,7 @@ const verifyPhoneToDB = async (payload: {
       role: user.role,
       email: user.email,
       phone: user.phone,
+      activeMode : user.activeMode,
     },
     config.jwt.jwt_secret as Secret,
     config.jwt.jwt_expire_in as string

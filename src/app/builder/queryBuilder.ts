@@ -43,15 +43,30 @@ class QueryBuilder<T> {
 }
 
 
+  // filter() {
+  //   const queryObj = { ...this.query };
+  //   const exclude = ["search", "page", "limit", "sort", "fields", "type"];
+
+  //   exclude.forEach((key) => delete queryObj[key]);
+
+  //   this.modelQuery = this.modelQuery.find(queryObj as FilterQuery<T>);
+  //   return this;
+  // }
+  
   filter() {
-    const queryObj = { ...this.query };
-    const exclude = ["search", "page", "limit", "sort", "fields", "type"];
+  const queryObj = { ...this.query };
+  const exclude = ["search", "page", "limit", "sort", "fields", "type"];
 
-    exclude.forEach((key) => delete queryObj[key]);
+  exclude.forEach((key) => delete queryObj[key]);
 
-    this.modelQuery = this.modelQuery.find(queryObj as FilterQuery<T>);
-    return this;
+  // ✅ support comma-separated status filter: status=OPEN,REQUESTED
+  if (typeof queryObj.status === "string" && queryObj.status.includes(",")) {
+    queryObj.status = { $in: queryObj.status.split(",").map((s: string) => s.trim()) };
   }
+
+  this.modelQuery = this.modelQuery.find(queryObj as FilterQuery<T>);
+  return this;
+}
 
   sort() {
     const sort =

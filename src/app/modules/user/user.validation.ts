@@ -48,6 +48,7 @@
 // };
 
 import { z } from "zod";
+import { USER_ROLES } from "../../../enums/user";
 
 const DriverVehicleTypeEnum = z.enum([
   "BICYCLE",
@@ -85,6 +86,8 @@ const createUserZodSchema = z.object({
     }),
 });
 
+
+
 const updateUserZodSchema = z.object({
   body: z
     .object({
@@ -99,11 +102,46 @@ const updateUserZodSchema = z.object({
       message: "Either email or phone is required",
     }),
 });
+const driverLocationZodSchema = z.object({
+  body: z.object({
+    lat: z.number(),
+    lng: z.number(),
+  }),
+});
+
+const driverAvailabilityZodSchema = z.object({
+  body: z.object({
+    isOnline: z.boolean().optional(),
+    isAvailable: z.boolean().optional(),
+  }),
+});
+
+const switchModeValidationSchema = z.object({
+  body: z.object({
+    mode: z.enum([USER_ROLES.CUSTOMER, USER_ROLES.DRIVER]),
+  }),
+});
+
+const driverTransactionQueryValidationSchema = z.object({
+  query: z.object({
+    page: z.string().optional(),
+    limit: z.string().optional(),
+    sort: z.string().optional(),
+    status: z.string().optional(),
+    payoutStatus: z.string().optional(),
+    refundStatus: z.string().optional(),
+    fields: z.string().optional(),
+  }),
+});
 
 export const UserValidation = {
   createAdminZodSchema,
   createUserZodSchema,
   updateUserZodSchema,
+  driverLocationZodSchema,
+  driverAvailabilityZodSchema,
+  switchModeValidationSchema,
+  driverTransactionQueryValidationSchema,
   driverBasicInfoZodSchema: z.object({
     body: z.object({
       firstName: z.string().min(1).optional(),
@@ -114,15 +152,7 @@ export const UserValidation = {
       profileImage: z.string().optional(),
       dateOfBirth: z.coerce.date().optional(),
       ssn: z.string().optional(),
-      address: z
-        .object({
-          street: z.string().optional(),
-          city: z.string().optional(),
-          state: z.string().optional(),
-          zip: z.string().optional(),
-          country: z.string().optional(),
-        })
-        .optional(),
+      address: z.string().optional(),
     }),
   }),
   driverVehicleInfoZodSchema: z.object({
@@ -137,9 +167,13 @@ export const UserValidation = {
   }),
   driverRequiredDocsZodSchema: z.object({
     body: z.object({
-      vehicleRegistrationDoc: z.string({ required_error: "Vehicle registration is required" }),
+      vehicleRegistrationDoc: z.string({
+        required_error: "Vehicle registration is required",
+      }),
       stateIdDoc: z.string({ required_error: "State ID is required" }),
-      driversLicenseDoc: z.string({ required_error: "Driver's license is required" }),
+      driversLicenseDoc: z.string({
+        required_error: "Driver's license is required",
+      }),
       ssnDoc: z.string().optional(),
       insuranceDoc: z.string().optional(),
     }),
@@ -149,5 +183,27 @@ export const UserValidation = {
       referralCode: z.string().nullable().optional(),
     }),
   }),
+
+  // Profile screens
+  profileSummaryQueryZodSchema: z.object({
+    query: z
+      .object({
+        includeStats: z.string().optional(), // "true" | "false"
+      })
+      .optional(),
+  }),
+
+  myTransactionsQueryZodSchema: z.object({
+    query: z.object({
+      page: z.string().optional(),
+      limit: z.string().optional(),
+      status: z.enum(["PENDING", "SUCCEEDED", "FAILED"]).optional(),
+      payoutStatus: z.enum(["NONE", "PENDING", "SUCCEEDED", "FAILED"]).optional(),
+      refundStatus: z.enum(["NONE", "PENDING", "SUCCEEDED", "FAILED"]).optional(),
+    }),
+  }),
 };
+
+
+
 

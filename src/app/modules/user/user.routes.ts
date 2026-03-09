@@ -100,6 +100,59 @@ router
   .get(requireAnyUser, UserController.getUserProfile)
   .delete(AdminOrUser, UserController.deleteProfile);
 
+  // profile/menu screens (customer + driver)
+// router.get(
+//   "/profile/summary",
+//   requireAnyUser,
+//   validateRequest(UserValidation.profileSummaryQueryZodSchema),
+//   UserController.getProfileSummary,
+// );
+
+// router.get(
+//   "/profile/transactions",
+//   requireAnyUser,
+//   validateRequest(UserValidation.myTransactionsQueryZodSchema),
+//   UserController.getMyTransactions,
+// );
+
+// router.get(
+//   "/profile/earnings",
+//   requireDriver,
+//   UserController.getDriverEarnings,
+// );
+
+router.get(
+  "/profile/summary",
+  auth(USER_ROLES.CUSTOMER, USER_ROLES.DRIVER, USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN),
+  UserController.getProfileSummary,
+);
+
+router.get(
+  "/profile/transactions",
+  auth(USER_ROLES.CUSTOMER, USER_ROLES.DRIVER),
+  validateRequest(UserValidation.driverTransactionQueryValidationSchema),
+  UserController.getMyTransactions,
+);
+
+router.get(
+  "/profile/earnings",
+  auth(USER_ROLES.CUSTOMER, USER_ROLES.DRIVER),
+  UserController.getDriverEarnings,
+);
+
+router.patch(
+  "/enable-driver-role",
+  auth(USER_ROLES.CUSTOMER, USER_ROLES.DRIVER),
+  UserController.enableDriverRole,
+);
+
+router.patch(
+  "/switch-mode",
+  auth(USER_ROLES.CUSTOMER, USER_ROLES.DRIVER),
+  validateRequest(UserValidation.switchModeValidationSchema),
+  UserController.switchMode,
+);
+
 /* ---------------------------- ADMIN CREATE ------------------------------ */
 router.post(
   "/create-admin",requireSuperAdmin,
@@ -187,7 +240,19 @@ router.post(
   UserController.submitDriverApplication,
 );
 
- 
+router.patch(
+  "/driver/location",
+  requireDriver,
+  validateRequest(UserValidation.driverLocationZodSchema),
+  UserController.updateDriverLocation,
+);
+
+router.patch(
+  "/driver/availability",
+  requireDriver,
+  validateRequest(UserValidation.driverAvailabilityZodSchema),
+  UserController.updateDriverAvailability,
+);
  
 /* ---------------------------- DYNAMIC USER ID ROUTES (KEEP LAST!) ------- */
 router

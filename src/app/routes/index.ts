@@ -3,7 +3,7 @@ import { UserRoutes } from "../modules/user/user.routes";
 import { AuthRoutes } from "../modules/auth/auth.routes";
 import { FaqRoutes } from "../modules/faq/faq.route";
 import { MediaRoutes } from "../modules/media/media.route";
-import { paymentRoutes } from "../modules/payment/payment.routes";
+import { PaymentRoutes } from "../modules/payment/payment.routes";
 import { stripeCEARoutes } from "../modules/stripeCEA/stripeCEA.routes";
 import { transactionRoutes } from "../modules/transaction/transaction.routes";
 import { artistRoutes } from "../modules/artist/artist.routes";
@@ -17,6 +17,9 @@ import { TermsAndConditionsRoutes } from "../modules/terms/terms-and-conditions.
 import { MailAdminRoutes } from "../modules/mailAdmin/mailAdmin.routes";
 import { DashboardRoutes } from "../modules/dashboard/dashboard.routes";
 import { TeamRoutes } from "../modules/team/team.routes";
+import { DeliveryRoutes } from "../modules/delivery/delivery.routes";
+import { PricingRoutes } from "../modules/pricing/pricing.routes";
+import { ReportRoutes } from "../modules/Report/report.routes";
 
 const router = express.Router();
 
@@ -54,7 +57,7 @@ const apiRoutes = [
 
   {
     path: "/payments",
-    route: paymentRoutes,
+    route: PaymentRoutes,
   },
   {
     path: "/stripe-accounts",
@@ -76,7 +79,7 @@ const apiRoutes = [
   },
 
   {
-    path: "/about",
+    path: "/about-us",
     route: AboutUsRoutes,
   },
   {
@@ -99,7 +102,19 @@ const apiRoutes = [
   {
     path: "/dashboard",
     route: DashboardRoutes,
-  }
+  },
+  {
+  path: "/deliveries",
+  route: DeliveryRoutes,
+},
+{
+  path: "/pricing",
+  route: PricingRoutes,
+},
+{
+  path: "/reports",
+  route: ReportRoutes,
+}
 ];
 
 apiRoutes.forEach((route) => router.use(route.path, route.route));

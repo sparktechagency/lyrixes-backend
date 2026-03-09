@@ -1,104 +1,78 @@
-import mongoose, { Document, Schema, Types } from "mongoose";
+import { Schema, model, Document, Types } from "mongoose";
 
 export enum TransactionStatus {
-  PENDING = "pending",
-  SUCCEEDED = "succeeded",
-  FAILED = "failed",
-  CANCELLED = "cancelled",
+  PENDING = "PENDING",
+  SUCCEEDED = "SUCCEEDED",
+  FAILED = "FAILED",
 }
- 
 
-export enum PaymentMethod { CARD = "card", }
+export enum PaymentMethod {
+  STRIPE = "STRIPE",
+  CARD = "CARD",
+}
 
 export enum PayoutStatus {
-  PENDING = "pending",
-  SUCCEEDED = "succeeded",
-  FAILED = "failed",
+  NONE = "NONE",
+  PENDING = "PENDING",
+  SUCCEEDED = "SUCCEEDED",
+  FAILED = "FAILED",
 }
 
 export enum RefundStatus {
-  NONE = "none",
-  PENDING = "pending",
-  SUCCEEDED = "succeeded",
-  FAILED = "failed",
+  NONE = "NONE",
+  PENDING = "PENDING",
+  SUCCEEDED = "SUCCEEDED",
+  FAILED = "FAILED",
 }
 
-export enum PayoutType {
-  FULL = "full",
-  PARTIAL = "partial",
-  NONE = "none",
-}
-
-export interface ITransaction extends Document {
-  orderId: Types.ObjectId | string;
-  code: string;
+export interface ITransaction {
+  deliveryId: Types.ObjectId;
+  customerId: Types.ObjectId;
+  driverId: Types.ObjectId;
   amount: number;
   currency: string;
   method: PaymentMethod;
   status: TransactionStatus;
-  externalRef?: string;
-  // provider?: PaymentProvider;
+
   stripeSessionId?: string;
   stripePaymentIntentId?: string;
-
-    // NEW
-  commissionAmount?: number;
-  payoutStatus?: PayoutStatus;
-  // Refund
-  refundId?: string;
-  refundAmount?: number;
+  stripeChargeId?: string;
   refundStatus?: RefundStatus;
+  refundAmount?: number;
   refundedAt?: Date;
+  commissionRate?: number;
+  commissionAmount?: number;
+  driverReceiptAmount?: number;
+  payoutStatus?: PayoutStatus;
   stripeTransferId?: string;
-  stripeChargeId?: string,
-  // payoutType?: PayoutType;
-  hostReceiptAmount?: number;
-
-  createdAt: Date;
-  updatedAt: Date;
+  payoutAt?: Date;
 }
 
-const transactionSchema = new Schema<ITransaction>(
+const TransactionSchema = new Schema<ITransaction>(
   {
-    orderId: { type: Schema.Types.ObjectId, ref: "Order", required: true },
-    code: { type: String, required: true, unique: true, index: true },
+    deliveryId: { type: Schema.Types.ObjectId, ref: "Delivery", required: true },
+    customerId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    driverId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     amount: { type: Number, required: true },
-    currency: { type: String, default: "usd" },
-    method: { type: String, enum: Object.values(PaymentMethod), default:  PaymentMethod.CARD },
-    status: {
-      type: String,
-      enum: Object.values(TransactionStatus),
-      default: TransactionStatus.PENDING,
-    },
-    externalRef: { type: String },
-    stripeSessionId: { type: String },
-    stripePaymentIntentId: { type: String },
-    //  NEW
-    commissionAmount: { type: Number, default: 0 },
-    payoutStatus: {
-      type: String,
-      enum: Object.values(PayoutStatus),
-      default: PayoutStatus.PENDING,
-    },
-    // Refund
-    refundId: { type: String },
-    refundAmount: { type: Number, default: 0 },
-    refundStatus: {
-      type: String,
-      enum: Object.values(RefundStatus),
-      default: RefundStatus.NONE,
-    },
-    refundedAt: { type: Date },
-    stripeTransferId: { type: String },
-    stripeChargeId: { type: String },
-    // payoutType: { type: String, enum: Object.values(PayoutType) },
+    currency: { type: String, required: true },
+    method: { type: String, enum: Object.values(PaymentMethod), required: true },
+    status: { type: String, enum: Object.values(TransactionStatus), required: true },
 
-    hostReceiptAmount: { type: Number, default: 0 },
+    stripeSessionId: { type: String },
+
+    stripePaymentIntentId: { type: String },
+    stripeChargeId: { type: String },
+    refundStatus: { type: String, enum: Object.values(RefundStatus) },
+    refundAmount: { type: Number },
+    refundedAt: { type: Date },
+    commissionRate: { type: Number },
+    commissionAmount: { type: Number },
+    driverReceiptAmount: { type: Number },
+    payoutStatus: { type: String, enum: Object.values(PayoutStatus) },
+    stripeTransferId: { type: String },
+    payoutAt: { type: Date },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
-export const Transaction = mongoose.model<ITransaction>("Transaction", transactionSchema);
-
-export default Transaction;
-
+export const Transaction = model<ITransaction>("Transaction", TransactionSchema);

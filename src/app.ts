@@ -16,11 +16,19 @@ const app: Application = express();
  * =========================
  * Must be BEFORE express.json()
  */
+// app.post(
+//   "/api/v1/payments/webhook/stripe",
+//   express.raw({ type: "application/json" }),
+//   PaymentController.stripeWebhook,
+// );
+// Stripe webhook (must be RAW body)
+// Stripe webhook must use raw body
 app.post(
-  "/api/v1/payments/webhook/stripe",
+  "/api/v1/payments/stripe/webhook",
   express.raw({ type: "application/json" }),
   PaymentController.stripeWebhook,
 );
+
 
 /**
  * =========================

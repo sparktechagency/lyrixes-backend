@@ -4,6 +4,24 @@ import sendResponse from "../../../shared/sendResponse";
 import { TransactionService } from "./transaction.service";
  
 
+const getDriverTransactions = catchAsync(async (req: Request, res: Response) => {
+  const driverId = req.user.id;
+  console.log("Driver ID from token:", driverId);
+
+  const result = await TransactionService.getDriverTransactionsFromDB(
+    driverId,
+    req.query
+  );
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Driver transaction history retrieved successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
 const getAllTransactions = catchAsync(async (req: Request, res: Response) => {
   const result = await TransactionService.getAllTransactions(req.query);
   sendResponse(res, {
@@ -67,6 +85,7 @@ const getPlatformRevenue = catchAsync(async (req: Request, res: Response) => {
   });
 });
 export const TransactionController = {
+  getDriverTransactions,
   getAllTransactions,
   getTransactionById,
   updateTransaction,

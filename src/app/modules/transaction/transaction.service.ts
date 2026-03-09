@@ -1,6 +1,6 @@
  
 import { Types } from "mongoose";
-import Transaction, { PayoutStatus, TransactionStatus } from "../payment/transaction.model";
+import { PayoutStatus, Transaction, TransactionStatus } from "../payment/transaction.model";
 import QueryBuilder from "../../builder/queryBuilder";
 
 interface GetTransactionsQuery {
@@ -12,6 +12,30 @@ interface GetTransactionsQuery {
   fields?: string;
   status?: string;
 }
+
+const getDriverTransactionsFromDB = async (
+  driverId: string,
+  query: Record<string, unknown>
+) => {
+  const baseQuery = Transaction.find({ driverId })
+    .populate("deliveryId")
+    .populate("customerId", "name email phone profileImage")
+    .populate("driverId", "name email phone profileImage");
+
+  const queryBuilder = new QueryBuilder(baseQuery, query)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const meta = await queryBuilder.countTotal();
+  const result = await queryBuilder.modelQuery;
+
+  return {
+    meta,
+    data: result,
+  };
+};
 
 const getAllTransactions = async (query: GetTransactionsQuery) => {
   const baseQuery = Transaction.find().populate("orderId").populate({
@@ -111,6 +135,7 @@ const getPlatformMonthlyRevenue = async (year?: number) => {
 
 
 export const TransactionService = {
+  getDriverTransactionsFromDB,
   getAllTransactions,
   getTransactionById,
   updateTransaction,

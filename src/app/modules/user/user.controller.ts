@@ -240,6 +240,78 @@ const getUserProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+
+// ==================88888888888888===========================
+
+
+// profile summary for menu screens (role-based)
+ 
+const getProfileSummary = catchAsync(async (req: Request, res: Response) => {
+  const includeStats =
+    String(req.query.includeStats ?? "false").toLowerCase() === "true";
+
+  const result = await UserService.getProfileSummaryFromDB(req.user, {
+    includeStats,
+  });
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Profile summary retrieved successfully",
+    data: result,
+  });
+});
+
+const getMyTransactions = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.getMyTransactionsFromDB(req.user, req.query);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Transaction history retrieved successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
+const getDriverEarnings = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.getDriverEarningsFromDB(req.user);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Driver earnings retrieved successfully",
+    data: result,
+  });
+});
+
+const enableDriverRole = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.enableDriverRoleToDB(req.user);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Driver role enabled successfully",
+    data: result,
+  });
+});
+
+const switchMode = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.switchUserModeToDB(req.user, req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Mode switch checked successfully",
+    data: result,
+  });
+});
+
+
+
+// =================88888888888888============================
+
+
 //update profile
 const updateProfile = catchAsync(async (req, res) => {
   const user: any = req.user;
@@ -375,6 +447,27 @@ const submitDriverApplication = catchAsync(async (req: Request, res: Response) =
   });
 });
 
+// =========================== Driver Registration End ============================
+// ========================== Driver location+availability============================
+const updateDriverLocation = catchAsync(async (req, res) => {
+  const result = await UserService.updateDriverLocationToDB(req.user as JwtPayload, req.body);
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Driver location updated",
+    data: result,
+  });
+});
+
+const updateDriverAvailability = catchAsync(async (req, res) => {
+  const result = await UserService.updateDriverAvailabilityToDB(req.user as JwtPayload, req.body);
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Driver availability updated",
+    data: result,
+  });
+});
 export const UserController = {
   createUser,
   createAdmin,
@@ -393,5 +486,18 @@ export const UserController = {
   updateDriverRequiredDocs,
   updateDriverReferral,
   submitDriverApplication,
+  // driver location + availability
+  updateDriverLocation,
+  updateDriverAvailability,
+  // profile summary
+  getProfileSummary,
+  // transactions
+  getMyTransactions,
+  // driver earnings
+  getDriverEarnings,
+  // enable driver role
+  enableDriverRole,
+  // switch mode
+  switchMode,
 };
 

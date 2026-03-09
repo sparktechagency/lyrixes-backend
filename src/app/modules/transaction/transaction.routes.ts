@@ -6,6 +6,14 @@ import auth from "../../middlewares/auth";
 
 const router = express.Router();
 
+
+router.get(
+  "/driver-transactions",
+  auth(USER_ROLES.DRIVER),
+  TransactionController.getDriverTransactions
+);
+
+
 // Admin + SuperAdmin routes
 router.get(
   "/",
