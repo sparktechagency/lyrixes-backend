@@ -29,6 +29,10 @@ export default {
     premium_price_id: process.env.STRIPE_PREMIUM_PRICE_ID!,
     BASE_URL: process.env.BASE_URL!,
   },
+  agora: {
+    appId: process.env.AGORA_APP_ID,
+    primaryCertificate: process.env.AGORA_PRIMARY_CERTIFICATE,
+  },
   email: {
     from: process.env.EMAIL_FROM,
     user: process.env.EMAIL_USER,
