@@ -18,6 +18,7 @@ import { MailAdminRoutes } from "../modules/mailAdmin/mailAdmin.routes";
 import { DashboardRoutes } from "../modules/dashboard/dashboard.routes";
 import { TeamRoutes } from "../modules/team/team.routes";
 import { RuleRoutes } from "../modules/rule/rule.route";
+import { callSessionRouters } from "../modules/callSession/callSession.route";
 
 const router = express.Router();
 
@@ -104,6 +105,10 @@ const apiRoutes = [
   {
     path: "/rules",
     route: RuleRoutes,
+  },
+  {
+    path:"/call-sessions",
+    route: callSessionRouters,
   }
 ];
 

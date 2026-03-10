@@ -8,21 +8,27 @@ interface ExtendedSocket extends Socket {
 
 let ioInstance: Server;
 
+// userId → socketId mapping
+const userSocketMap = new Map<string, string>();
+
 const socket = (io: Server) => {
   ioInstance = io;
+
   io.on("connection", (socket) => {
+    const userId = socket.handshake.query.userId as string;
+
+    if (userId) {
+      userSocketMap.set(userId, socket.id); // ✅ Map-এ store করো
+      logger.info(colors.green(`User ${userId} registered with socket ${socket.id}`));
+    }
+
     logger.info(colors.blue("A User connected"));
 
-    socket.on("register", (userId: string) => {
-      if (userId) {
-        (socket as ExtendedSocket).userId = userId;
-        logger.info(colors.green(`User ${userId} registered`));
-      }
-    });
-
-    // disconnect
     socket.on("disconnect", () => {
-      logger.info(colors.red("A user disconnect"));
+      if (userId) {
+        userSocketMap.delete(userId); // ✅ disconnect-এ remove করো
+      }
+      logger.info(colors.red("A user disconnected"));
     });
   });
 };
@@ -35,11 +41,12 @@ export function emitToUser(userId: string, event: string, payload: any) {
     return;
   }
 
-  for (const client of ioInstance.sockets.sockets.values()) {
-    const s = client as ExtendedSocket;
-    if (s.userId === userId) {
-      s.emit(event, payload);
-    }
-  }
-}
+  const socketId = userSocketMap.get(userId); // ✅ Map থেকে socketId নাও
 
+  if (!socketId) {
+    logger.warn(`User ${userId} is not connected`);
+    return;
+  }
+
+  ioInstance.to(socketId).emit(event, payload); // ✅ সরাসরি emit করো
+}
