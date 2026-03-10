@@ -19,6 +19,7 @@ import { DashboardRoutes } from "../modules/dashboard/dashboard.routes";
 import { TeamRoutes } from "../modules/team/team.routes";
 import { RuleRoutes } from "../modules/rule/rule.route";
 import { callSessionRouters } from "../modules/callSession/callSession.route";
+import { GeneralSettingsRoutes } from "../modules/generalSettings/generalSettings.route";
 
 const router = express.Router();
 
@@ -109,6 +110,10 @@ const apiRoutes = [
   {
     path:"/call-sessions",
     route: callSessionRouters,
+  },
+  {
+    path:"/general-settings",
+    route: GeneralSettingsRoutes,
   }
 ];
 

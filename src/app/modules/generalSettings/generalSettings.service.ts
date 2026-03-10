@@ -57,9 +57,7 @@ const getSettingsFromDB = async () => {
 
 
 
-const updateSettingsInDB = async (
-    updateData: IUpdateSettingsPayload
-) => {
+const updateSettingsInDB = async (updateData: IUpdateSettingsPayload) => {
     const {
         companyName,
         supportEmail,
@@ -70,17 +68,15 @@ const updateSettingsInDB = async (
         operatingHoursEnd,
     } = updateData;
 
-    const payload = {
-        companyName,
-        supportEmail,
-        supportPhone,
-        timeZone,
-        companyAddress,
-        operatingHours: {
-            start: operatingHoursStart ?? "",
-            end: operatingHoursEnd ?? "",
-        },
-    };
+    const payload: Record<string, unknown> = {};
+
+    if (companyName !== undefined) payload.companyName = companyName;
+    if (supportEmail !== undefined) payload.supportEmail = supportEmail;
+    if (supportPhone !== undefined) payload.supportPhone = supportPhone;
+    if (timeZone !== undefined) payload.timeZone = timeZone;
+    if (companyAddress !== undefined) payload.companyAddress = companyAddress;
+    if (operatingHoursStart !== undefined) payload["operatingHours.start"] = operatingHoursStart;
+    if (operatingHoursEnd !== undefined) payload["operatingHours.end"] = operatingHoursEnd;
 
     const updated = await GeneralSettings.findOneAndUpdate(
         {},
