@@ -17,6 +17,7 @@ import { TermsAndConditionsRoutes } from "../modules/terms/terms-and-conditions.
 import { MailAdminRoutes } from "../modules/mailAdmin/mailAdmin.routes";
 import { DashboardRoutes } from "../modules/dashboard/dashboard.routes";
 import { TeamRoutes } from "../modules/team/team.routes";
+import { RuleRoutes } from "../modules/rule/rule.route";
 
 const router = express.Router();
 
@@ -99,6 +100,10 @@ const apiRoutes = [
   {
     path: "/dashboard",
     route: DashboardRoutes,
+  },
+  {
+    path: "/rules",
+    route: RuleRoutes,
   }
 ];
 
