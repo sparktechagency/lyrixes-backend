@@ -1,54 +1,45 @@
 import { JwtPayload } from "jsonwebtoken";
-import { INotification } from "./notification.interface";
 import { Notification } from "./notification.model";
+import { emitToUser } from "../../../helpers/socketHelper";
 
-// get notifications
-const getNotificationFromDB = async (
-  user: JwtPayload,
-): Promise<INotification> => {
-  const result = await Notification.find({ receiver: user.id }).populate({
-    path: "sender",
-    select: "name profile",
-  });
+const getNotificationFromDB = async (user: JwtPayload) => {
+  const result = await Notification.find({ receiver: user.id })
+    .sort({ createdAt: -1 })
+    .lean();
 
   const unreadCount = await Notification.countDocuments({
     receiver: user.id,
     read: false,
   });
 
-  const data: any = {
+  return {
     result,
     unreadCount,
   };
-
-  return data;
 };
 
-// read notifications only for user
-const readNotificationToDB = async (
-  user: JwtPayload,
-): Promise<INotification | undefined> => {
-  const result: any = await Notification.updateMany(
+const readNotificationToDB = async (user: JwtPayload) => {
+  const result = await Notification.updateMany(
     { receiver: user.id, read: false },
     { $set: { read: true } },
   );
+
+  emitToUser(user.id, "notification:read-all", {
+    unreadCount: 0,
+  });
+
   return result;
 };
 
-// get notifications for admin
 const adminNotificationFromDB = async () => {
-  const result = await Notification.find({ type: "ADMIN" });
-  return result;
+  return Notification.find({ type: "ADMIN" }).sort({ createdAt: -1 }).lean();
 };
 
-// read notifications only for admin
-const adminReadNotificationToDB = async (): Promise<INotification | null> => {
-  const result: any = await Notification.updateMany(
+const adminReadNotificationToDB = async () => {
+  return Notification.updateMany(
     { type: "ADMIN", read: false },
     { $set: { read: true } },
-    { new: true },
   );
-  return result;
 };
 
 export const NotificationService = {

@@ -16,6 +16,9 @@ import {
   RefundStatus,
 } from "./transaction.model";
 
+// helper for sequential codes (see util/orderOTPgenerate.ts)
+import { getNextTransactionCode } from "../../../util/orderOTPgenerate";
+
 import { User } from "../user/user.model";
 
 const COMMISSION_RATE = 0.15; // 15%
@@ -120,7 +123,13 @@ const createCheckoutSession = async (input: {
     billing_address_collection: "required",
   });
 
+  // generate a unique code for the transaction; this also satisfies
+  // the existing unique index in the database.  if the index was
+  // manually dropped you'll still get a code, which is harmless.
+  const code = await getNextTransactionCode();
+
   const trx = await Transaction.create({
+    code,
     deliveryId: delivery._id,
     customerId: delivery.customerId,
     driverId: delivery.selectedDriverId,

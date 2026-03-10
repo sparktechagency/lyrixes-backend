@@ -20,6 +20,9 @@ import { TeamRoutes } from "../modules/team/team.routes";
 import { DeliveryRoutes } from "../modules/delivery/delivery.routes";
 import { PricingRoutes } from "../modules/pricing/pricing.routes";
 import { ReportRoutes } from "../modules/Report/report.routes";
+import { callSessionRouters } from "../modules/callSession/callSession.route";
+import { MessageRoutes } from "../modules/message/message.routes";
+import { NotificationRoutes } from "../modules/notification/notification.routes";
 
 const router = express.Router();
 
@@ -43,7 +46,6 @@ const apiRoutes = [
   {
     path: "/teams",
     route: TeamRoutes,
-
   },
   {
     path: "/orders",
@@ -104,17 +106,29 @@ const apiRoutes = [
     route: DashboardRoutes,
   },
   {
-  path: "/deliveries",
-  route: DeliveryRoutes,
-},
-{
-  path: "/pricing",
-  route: PricingRoutes,
-},
-{
-  path: "/reports",
-  route: ReportRoutes,
-}
+    path: "/deliveries",
+    route: DeliveryRoutes,
+  },
+  {
+    path: "/pricing",
+    route: PricingRoutes,
+  },
+  {
+    path: "/reports",
+    route: ReportRoutes,
+  },
+  {
+    path: "/call-sessions",
+    route: callSessionRouters,
+  },
+    {
+    path: "/notifications",
+    route: NotificationRoutes,
+  },
+  {
+    path: "/messages",
+    route: MessageRoutes,
+  },
 ];
 
 apiRoutes.forEach((route) => router.use(route.path, route.route));
