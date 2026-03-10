@@ -20,6 +20,7 @@ import { TeamRoutes } from "../modules/team/team.routes";
 import { RuleRoutes } from "../modules/rule/rule.route";
 import { callSessionRouters } from "../modules/callSession/callSession.route";
 import { GeneralSettingsRoutes } from "../modules/generalSettings/generalSettings.route";
+import { AnalyticsRoutes } from "../modules/analytics/analytics.route";
 
 const router = express.Router();
 
@@ -114,7 +115,11 @@ const apiRoutes = [
   {
     path:"/general-settings",
     route: GeneralSettingsRoutes,
-  }
+  },
+  {
+    path:"/analytics",
+    route: AnalyticsRoutes,
+  },
 ];
 
 apiRoutes.forEach((route) => router.use(route.path, route.route));

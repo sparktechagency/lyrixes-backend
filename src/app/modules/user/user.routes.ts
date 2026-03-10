@@ -187,6 +187,13 @@ router.post(
   UserController.submitDriverApplication,
 );
 
+// ---------------------------- USER STATUS ------------------------------- */
+router.patch(
+  "/:id/status",
+  requireAdminOrSuperAdmin,
+  UserController.updateStatusById,
+);
+
  
  
 /* ---------------------------- DYNAMIC USER ID ROUTES (KEEP LAST!) ------- */

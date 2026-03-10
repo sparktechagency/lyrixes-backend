@@ -58,7 +58,7 @@
 
 
 import { Model } from "mongoose";
-import { USER_ROLES } from "../../../enums/user";
+import { STATUS, USER_ROLES } from "../../../enums/user";
 
 export enum MEMBERSHIP_TYPE {
   NONE = "none",
@@ -140,6 +140,8 @@ export type IUser = {
   profileImage?: string;
   password: string;
   verified: boolean;
+  status?: STATUS;
+ 
   // agreedToTerms?: boolean;
   // stripe ....
   connectedAccountId?: string;

@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { USER_ROLES } from "../../../enums/user";
+import { STATUS, USER_ROLES } from "../../../enums/user";
 import {
   DRIVER_APPLICATION_STATUS,
   IUser,
@@ -106,6 +106,11 @@ const userSchema = new Schema<IUser, UserModal>(
     fullName: {
       type: String,
       // required: true,
+    },
+    status: {
+      type: String,
+      enum: Object.values(STATUS),
+      default: STATUS.ACTIVE,
     },
 
     // email: {

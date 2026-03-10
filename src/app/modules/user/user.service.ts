@@ -268,7 +268,7 @@
 //   deleteProfileFromDB,
 // };
 
-import { USER_ROLES } from "../../../enums/user";
+import { STATUS, USER_ROLES } from "../../../enums/user";
 import { IUser } from "./user.interface";
 import { JwtPayload, Secret } from "jsonwebtoken";
 import { User } from "./user.model";
@@ -799,6 +799,36 @@ const submitDriverApplicationToDB = async (user: JwtPayload) => {
   };
 };
 
+const updateStatusByIdToDB = async (
+  id: string,
+  status: STATUS.ACTIVE | STATUS.INACTIVE,
+) => {
+  if (![STATUS.ACTIVE, STATUS.INACTIVE].includes(status)) {
+    throw new ApiError(400, "Status must be either 'ACTIVE' or 'INACTIVE'");
+  }
+
+  const user = await User.findOne({
+    _id: id,
+    role: { $in: [USER_ROLES.CUSTOMER, USER_ROLES.DRIVER] },
+  });
+
+  if (!user) {
+    throw new ApiError(404, "No user is found by this user ID");
+  }
+
+  const result = await User.findByIdAndUpdate(
+    id,
+    { status },
+    { new: true }
+  );
+
+  if (!result) {
+    throw new ApiError(400, "Failed to change status by this user ID");
+  }
+
+  return result;
+};
+
 export const UserService = {
   createUserToDB,
   getAdminFromDB,
@@ -810,6 +840,7 @@ export const UserService = {
   getUserByIdFromDB,
   deleteUserByIdFromD,
   deleteProfileFromDB,
+  updateStatusByIdToDB,
   // driver registration
   getMyDriverRegistrationFromDB,
   updateDriverBasicInfoToDB,
