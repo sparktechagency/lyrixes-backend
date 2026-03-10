@@ -500,4 +500,3 @@ export const UserController = {
   // switch mode
   switchMode,
 };
-
