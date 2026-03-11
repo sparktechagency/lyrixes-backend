@@ -665,6 +665,53 @@ const getTransactionStatsService = async () => {
   };
 };
 
+const getDashboardStatsService = async () => {
+  const [
+    totalRevenue,
+    activeDrivers,
+    totalCustomers,
+    totalSuccessfulDeliveries,
+  ] = await Promise.all([
+    // Admin total revenue (commission amount)
+    Transaction.aggregate([
+      { $match: { status: "SUCCEEDED" } },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$commissionAmount" },
+          currency: { $first: "$currency" },
+        },
+      },
+    ]),
+
+    // Active drivers
+    User.countDocuments({
+      role: USER_ROLES.DRIVER,
+      status: "ACTIVE",
+    }),
+
+    // Total customers
+    User.countDocuments({
+      role: USER_ROLES.CUSTOMER,
+      status: "ACTIVE",
+    }),
+
+    // Total successful deliveries
+    Delivery.countDocuments({
+      status: { $in: [DELIVERY_STATUS.DELIVERED_CONFIRMED, DELIVERY_STATUS.PAYOUT_DONE] },
+    }),
+  ]);
+
+  return {
+    totalRevenue: {
+      amount: totalRevenue[0]?.totalRevenue ?? 0,
+      currency: totalRevenue[0]?.currency ?? "usd",
+    },
+    activeDrivers,
+    totalCustomers,
+    totalSuccessfulDeliveries,
+  };
+};
 
 
 export const AnalyticsServices = {
@@ -679,4 +726,5 @@ export const AnalyticsServices = {
   getTransactionDetailsService,
   getAllTransactionsDetailsService,
   getTransactionStatsService,
+  getDashboardStatsService,
 };

@@ -121,6 +121,16 @@ const getTransactionStats =catchAsync(async(req ,res)=>{
     });
 });
 
+const getDashboardStats =catchAsync(async(req ,res)=>{
+    const result = await AnalyticsServices.getDashboardStatsService();
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Dashboard stats fetched successfully",
+        data: result,
+    });
+});
+
 
 
 export const AnalyticsControllers={
@@ -135,4 +145,5 @@ export const AnalyticsControllers={
     getTransactionDetails,
     getAllTransactionsDetails,
     getTransactionStats,
+    getDashboardStats,
 }

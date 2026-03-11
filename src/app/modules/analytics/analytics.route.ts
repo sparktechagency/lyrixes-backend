@@ -27,6 +27,8 @@ router.get("/transaction-details/:transactionId", auth(USER_ROLES.ADMIN, USER_RO
 
 router.get("/transaction-stats", auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), AnalyticsControllers.getTransactionStats);
 
+router.get("/dashboard-stats", auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), AnalyticsControllers.getDashboardStats);
+
 
 
 export const AnalyticsRoutes = router;
