@@ -15,6 +15,12 @@ router.get("/all-customers-details", auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADM
 
 router.get("/customer-details/:customerId", auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), AnalyticsControllers.getCustomerDetails);
 
+router.get("/all-deliveries-details", auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), AnalyticsControllers.getAllDeliveriesDetails);
+
+router.get("/delivery-details/:deliveryId", auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), AnalyticsControllers.getDeliveryDetails);
+
+router.get("/delivery-stats", auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), AnalyticsControllers.getDeliveryStats);
+
 
 
 export const AnalyticsRoutes = router;

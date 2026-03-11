@@ -339,6 +339,199 @@ const getAllCustomersDetailsService = async (query: Record<string, any>) => {
   return { data: customersWithStats, meta };
 };
 
+// -------------------- Reusable Formatter --------------------
+
+const formatDelivery = (delivery: any, transaction: any) => {
+  const customer = delivery.customerId as any;
+  const driver = delivery.selectedDriverId as any;
+
+  return {
+    id: delivery._id,
+
+    customer: customer
+      ? {
+          id: customer._id,
+          name: customer.fullName ?? `${customer.firstName} ${customer.lastName}`,
+          email: customer.email,
+          phone: customer.phone,
+          profileImage: customer.profileImage,
+          countryCode: customer.countryCode,
+          status: customer.status,
+        }
+      : null,
+
+    driver: driver
+      ? {
+          id: driver._id,
+          name: driver.fullName ?? `${driver.firstName} ${driver.lastName}`,
+          email: driver.email,
+          phone: driver.phone,
+          profileImage: driver.profileImage,
+          countryCode: driver.countryCode,
+          status: driver.status,
+        }
+      : null,
+
+    route: {
+      pickup: {
+        address: delivery.pickup.address,
+        coordinates: delivery.pickup.point.coordinates,
+      },
+      dropoff: {
+        address: delivery.dropoff.address,
+        coordinates: delivery.dropoff.point.coordinates,
+      },
+      distanceKm: delivery.pricing.distanceKm,
+    },
+
+    parcel: {
+      type: delivery.parcel.type,
+      size: delivery.parcel.size,
+      weightKg: delivery.parcel.weightKg,
+      description: delivery.parcel.description,
+      isFragile: delivery.parcel.isFragile,
+      isLiquid: delivery.parcel.isLiquid,
+      isValuable: delivery.parcel.isValuable,
+      photos: delivery.parcel.photos,
+    },
+
+    vehicle: delivery.vehicleType,
+
+    payment: transaction
+      ? {
+          amount: transaction.amount,
+          currency: transaction.currency,
+          method: transaction.method,
+          status: transaction.status,
+        }
+      : null,
+
+    status: delivery.status,
+    createdAt: delivery.createdAt,
+  };
+};
+
+// -------------------- Single Delivery --------------------
+
+const getDeliveryDetailsService = async (deliveryId: string) => {
+  const delivery = await Delivery.findById(deliveryId)
+    .populate({
+      path: "customerId",
+      select: "firstName lastName fullName email phone profileImage countryCode status",
+    })
+    .populate({
+      path: "selectedDriverId",
+      select: "firstName lastName fullName email phone profileImage countryCode status",
+    });
+
+  if (!delivery) throw new Error("Delivery not found");
+
+  const transaction = await Transaction.findOne({
+    deliveryId: new Types.ObjectId(deliveryId),
+    status: "SUCCEEDED",
+  }).select("amount currency method status");
+
+  return formatDelivery(delivery, transaction);
+};
+
+// -------------------- All Deliveries --------------------
+
+const getAllDeliveriesDetailsService = async (query: Record<string, any>) => {
+  const deliveryQuery = new QueryBuilder(
+    Delivery.find()
+      .populate({
+        path: "customerId",
+        select: "firstName lastName fullName email phone profileImage countryCode status",
+      })
+      .populate({
+        path: "selectedDriverId",
+        select: "firstName lastName fullName email phone profileImage countryCode status",
+      }),
+    query
+  )
+    .filter()
+    .sort()
+    .paginate();
+
+  const [deliveries, meta] = await Promise.all([
+    deliveryQuery.modelQuery,
+    deliveryQuery.countTotal(),
+  ]);
+
+  if (!deliveries.length) return { data: [], meta };
+
+  const deliveriesWithDetails = await Promise.all(
+    deliveries.map(async (delivery: any) => {
+      const transaction = await Transaction.findOne({
+        deliveryId: delivery._id,
+        status: "SUCCEEDED",
+      }).select("amount currency method status");
+
+      return formatDelivery(delivery, transaction);
+    })
+  );
+
+  return { data: deliveriesWithDetails, meta };
+};
+
+const getDeliveryStatsService = async () => {
+  const stats = await Delivery.aggregate([
+    {
+      $group: {
+        _id: "$status",
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const statusMap: Record<string, number> = {};
+  stats.forEach((s) => {
+    statusMap[s._id] = s.count;
+  });
+
+  const pendingStatuses = [
+    DELIVERY_STATUS.OPEN,
+    DELIVERY_STATUS.REQUESTED,
+    DELIVERY_STATUS.BID_SENT,
+    DELIVERY_STATUS.ACCEPTED,
+    DELIVERY_STATUS.PAYMENT_PENDING,
+    DELIVERY_STATUS.PAID,
+  ];
+
+  const inProgressStatuses = [
+    DELIVERY_STATUS.IN_DELIVERY,
+    DELIVERY_STATUS.DELIVERED_BY_DRIVER,
+  ];
+
+  const completedStatuses = [
+    DELIVERY_STATUS.DELIVERED_CONFIRMED,
+    DELIVERY_STATUS.PAYOUT_DONE,
+  ];
+
+  const canceledStatuses = [
+    DELIVERY_STATUS.CANCELLED,
+    DELIVERY_STATUS.CANCELLED_BY_DRIVER,
+  ];
+
+  const sumStatuses = (statuses: DELIVERY_STATUS[]) =>
+    statuses.reduce((acc, status) => acc + (statusMap[status] ?? 0), 0);
+
+  const totalPending = sumStatuses(pendingStatuses);
+  const totalInProgress = sumStatuses(inProgressStatuses);
+  const totalCompleted = sumStatuses(completedStatuses);
+  const totalCanceled = sumStatuses(canceledStatuses);
+  const totalDeliveries = totalPending + totalInProgress + totalCompleted + totalCanceled;
+
+  return {
+    totalDeliveries,
+    totalPending,
+    totalInProgress,
+    totalCompleted,
+    totalCanceled,
+  };
+};
+
+
 
 export const AnalyticsServices = {
   getUserStats,
@@ -346,4 +539,7 @@ export const AnalyticsServices = {
   getAllDriversDetailsService,
   getCustomerDetailsService,
   getAllCustomersDetailsService,
+  getDeliveryDetailsService,
+  getAllDeliveriesDetailsService,
+  getDeliveryStatsService,
 };

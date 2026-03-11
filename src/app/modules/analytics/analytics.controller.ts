@@ -57,6 +57,39 @@ const getAllCustomersDetails =catchAsync(async(req ,res)=>{
 });
 
 
+const getDeliveryDetails =catchAsync(async(req ,res)=>{
+    const deliveryId = req.params.deliveryId;
+    const result = await AnalyticsServices.getDeliveryDetailsService(deliveryId);
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Delivery details fetched successfully",
+        data: result,
+    });
+});
+
+const getAllDeliveriesDetails =catchAsync(async(req ,res)=>{
+    const result = await AnalyticsServices.getAllDeliveriesDetailsService(req.query);
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Delivery details fetched successfully",
+        data: result.data,
+        meta: result.meta,
+    });
+});
+
+const getDeliveryStats =catchAsync(async(req ,res)=>{
+    const result = await AnalyticsServices.getDeliveryStatsService();
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Delivery stats fetched successfully",
+        data: result,
+    });
+});
+
+
 
 export const AnalyticsControllers={
     getAnalytics,
@@ -64,4 +97,7 @@ export const AnalyticsControllers={
     getAllDriversDetails,
     getCustomerDetails,
     getAllCustomersDetails,
+    getDeliveryDetails,
+    getAllDeliveriesDetails,
+    getDeliveryStats,
 }
