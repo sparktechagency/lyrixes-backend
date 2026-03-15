@@ -643,6 +643,7 @@ const formatTransaction = (transaction: any) => {
       currency: transaction.currency,
       totalAmount: transaction.amount,
       status: transaction.status,
+      createdAt: transaction.createdAt,
     },
 
     commission: {

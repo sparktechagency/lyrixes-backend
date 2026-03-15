@@ -59,7 +59,7 @@ const createCallSession = async (callerId: string, receiverId: string) => {
     if (active) {
         throw new ApiError(400, "Caller or receiver is already in another active call");
     }
-
+    
     const sessionId = new Types.ObjectId();
     const channelName = `call_${sessionId}`;
 
